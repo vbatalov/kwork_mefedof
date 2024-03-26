@@ -2,6 +2,9 @@
 
 return [
 
+    "BOT_TOKEN" => env("BOT_TOKEN"),
+    "BOT_URL" => env("BOT_URL"),
+
     /*
     |--------------------------------------------------------------------------
     | Application Name
