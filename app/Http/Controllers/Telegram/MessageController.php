@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Telegram;
 use App\Http\Controllers\Controller;
 use App\Models\Telegram\TelegramUser;
 
+use App\Traits\CodempTratit;
 use App\Traits\TelegramBotButtonTrait;
 use App\Traits\TelegramBotTrait;
 
@@ -17,6 +18,8 @@ class MessageController extends Controller
 {
     use TelegramBotTrait;
     use TelegramBotButtonTrait;
+
+    use CodempTratit;
 
     public function controller(Message $message)
     {
@@ -32,6 +35,16 @@ class MessageController extends Controller
                             "phone" => $contact->getPhoneNumber(),
                             "cookie" => "requestEmail"
                         ]);
+
+                    if ($this->checkUser($user->phone)) {
+                        $this->bot->sendMessage(chatId: $cid, text: "Пользователь с таким номером телефона уже зарегистрирован.", parseMode: "HTML", replyMarkup: new ReplyKeyboardRemove());
+                        $keyboard = new InlineKeyboardMarkup([
+                            [
+                                $this->sendRecoveryButton(),
+                            ]
+                        ]);
+                        return $this->bot->sendMessage(chatId: $cid, text: "Используйте кнопку Восстановить доступ для получения данных авторизации.", parseMode: "HTML", replyMarkup: $keyboard);
+                    }
 
                     //Запрос эл. почты
                     $message = view("TelegramBot.requestEmail")->render();

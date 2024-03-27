@@ -31,7 +31,18 @@ trait TelegramBotButtonTrait
     #[ArrayShape(['text' => "string", 'callback_data' => "string"])]
     public function confirmEmail($email): array
     {
-        return ['text' => 'Подтверждаю', 'callback_data' => $this->build(action: "_requestEmailUserConfirm", data: $email)];
+        return ['text' => 'Подтверждаю', 'callback_data' => $this->build(action: "confirmAndRegister", data: $email)];
+    }
 
+    #[ArrayShape(['text' => "string", 'url' => "string"])]
+    public function goToWebsite(string $text, string $url): array
+    {
+        return ['text' => $text, 'url' => $url];
+    }
+
+    #[ArrayShape(['text' => "string", 'callback_data' => "string"])]
+    public function sendRecoveryButton(): array
+    {
+        return ['text' => 'Восстановить доступ', 'callback_data' => $this->build(action: "recoveryPassword")];
     }
 }
