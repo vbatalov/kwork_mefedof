@@ -23,10 +23,10 @@ class TelegramApi extends Controller
 
     public function index()
     {
-        try {
-            $command = new CommandController();
-            $command->controller();
+        $command = new CommandController();
+        $command->controller();
 
+        try {
             $update = new UpdateController();
             $update->controller();
         } catch (\Throwable $t) {

@@ -1,4 +1,4 @@
-<b>Ссылка для входа https://codemp.ru/login</b>
+<b>Ссылка для входа: https://codemp.ru/login</b>
 
-<b>Логин:</b> {{$data['login']}}
-<b>Пароль:</b> {{$data['password']}}
+<b>Логин:</b> <code>{{$data['login']}}</code>
+<b>Пароль:</b> <code>{{$data['password']}}   </code>

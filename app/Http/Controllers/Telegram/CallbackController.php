@@ -133,6 +133,9 @@ class CallbackController extends Controller
             $keyboard = new InlineKeyboardMarkup([
                 [
                     $this->sendRecoveryButton(),
+                ],
+                [
+                    $this->supportButton(),
                 ]
             ]);
             $this->bot->editMessageText(chatId: $cid,
@@ -161,6 +164,9 @@ class CallbackController extends Controller
         $keyboard = new InlineKeyboardMarkup([
             [
                 $this->sendRecoveryButton(),
+            ],
+            [
+                $this->supportButton(),
             ]
         ]);
         $message = view("TelegramBot._userAlreadyExistsInDB")->render();
@@ -187,6 +193,11 @@ class CallbackController extends Controller
 
     private function __sendLoginData(CallbackQuery $callbackQuery, string $cid, array $data)
     {
+        $user = TelegramUser::where("cid", $cid)->firstOrFail();
+        $user->update([
+            "cookie" => "finish"
+        ]);
+
         $message = view("TelegramBot._sendLoginData", compact("data"))->render();
         $keyboard = new InlineKeyboardMarkup([
             [

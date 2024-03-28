@@ -40,6 +40,12 @@ trait TelegramBotButtonTrait
         return ['text' => $text, 'url' => $url];
     }
 
+    #[ArrayShape(['text' => "string", 'url' => "string"])]
+    public function supportButton(): array
+    {
+        return ['text' => "😎 Поддержка", 'url' => "https://t.me/vel1122"];
+    }
+
     #[ArrayShape(['text' => "string", 'callback_data' => "string"])]
     public function sendRecoveryButton(): array
     {

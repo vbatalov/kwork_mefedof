@@ -41,6 +41,9 @@ class MessageController extends Controller
                         $keyboard = new InlineKeyboardMarkup([
                             [
                                 $this->sendRecoveryButton(),
+                            ],
+                            [
+                                $this->supportButton(),
                             ]
                         ]);
                         return $this->bot->sendMessage(chatId: $cid, text: "Используйте кнопку Восстановить доступ для получения данных авторизации.", parseMode: "HTML", replyMarkup: $keyboard);
@@ -68,6 +71,18 @@ class MessageController extends Controller
                 [
                     [
                         $this->confirmEmail(email: $email),
+                    ]
+                ]
+            );
+            return $this->bot->sendMessage(chatId: $cid, text: $message, parseMode: "HTML", replyMarkup: $keyboard);
+        }
+
+        if ($message->getText() != "/start") {
+            $message = view("TelegramBot._errorAfterUserSendJustMessage")->render();
+            $keyboard = new InlineKeyboardMarkup(
+                [
+                    [
+                        $this->supportButton(),
                     ]
                 ]
             );
