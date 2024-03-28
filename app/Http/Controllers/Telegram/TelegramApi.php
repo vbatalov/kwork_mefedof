@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Telegram;
 
 use App\Http\Controllers\Controller;
 use App\Traits\TelegramBotTrait;
+use Log;
+use Throwable;
 
 
 class TelegramApi extends Controller
@@ -13,11 +15,11 @@ class TelegramApi extends Controller
     public function register_bot()
     {
         $this->bot->setWebhook(url: config("app.BOT_URL"), dropPendingUpdates: true);
-        return "Webhook was set";
+        return true;
     }
     public function getWebhookInfo()
     {
-        dd($this->bot->getWebhookInfo());
+        return print_r($this->bot->getWebhookInfo());
     }
 
 
@@ -29,9 +31,9 @@ class TelegramApi extends Controller
         try {
             $update = new UpdateController();
             $update->controller();
-        } catch (\Throwable $t) {
+        } catch (Throwable $t) {
             print_r($t->getMessage());
-            \Log::error($t->getMessage());
+            Log::error($t->getMessage());
         }
     }
 }
