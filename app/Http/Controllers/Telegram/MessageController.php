@@ -27,6 +27,7 @@ class MessageController extends Controller
         $user = TelegramUser::where("cid", $cid)->firstOrFail();
 
         if ($user->cookie == "requestPhone") {
+
             if ($contact = $message->getContact()) {
                 if ($contact->getUserId() == $cid) {
                     // Обновляю контактный номер
@@ -56,7 +57,9 @@ class MessageController extends Controller
                     return $this->bot->sendMessage(chatId: $cid, text: "Вы отправили чужой контактный номер.");
                 }
             } else {
-                return $this->bot->sendMessage(chatId: $cid, text: "Используйте кнопку Отправить телефон, чтобы поделиться контактом.");
+                if ($message->getText() != "/register") {
+                    return $this->bot->sendMessage(chatId: $cid, text: "Используйте кнопку Отправить телефон, чтобы поделиться контактом.");
+                }
             }
         }
 
@@ -77,7 +80,12 @@ class MessageController extends Controller
             return $this->bot->sendMessage(chatId: $cid, text: $message, parseMode: "HTML", replyMarkup: $keyboard);
         }
 
-        if ($message->getText() != "/start") {
+        if (
+            ($message->getText() != "/start")
+            and ($message->getText() != "/support")
+            and ($message->getText() != "/register")
+            and ($message->getText() != "/restore_access")
+        ) {
             $message = view("TelegramBot._errorAfterUserSendJustMessage")->render();
             $keyboard = new InlineKeyboardMarkup(
                 [

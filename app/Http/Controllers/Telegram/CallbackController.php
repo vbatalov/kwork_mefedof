@@ -55,7 +55,7 @@ class CallbackController extends Controller
      * @throws Exception
      * @throws InvalidArgumentException
      */
-    private function register(CallbackQuery $callbackQuery)
+    public function register(CallbackQuery $callbackQuery)
     {
         $cid = $callbackQuery->getMessage()->getChat()->getId();
 
@@ -151,7 +151,7 @@ class CallbackController extends Controller
      * @return true направить сообщение о восстановлении пароля
      * @return false продолжить регистрацию пользователя, сбор данных
      */
-    private function _checkUserExists(TelegramUser $user)
+    public function _checkUserExists(TelegramUser $user)
     {
         return $this->checkUser(phone: $user->phone);
     }

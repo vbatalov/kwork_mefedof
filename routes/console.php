@@ -1,12 +1,15 @@
 <?php
-
-use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote')->hourly();
-
+Artisan::command('bot:command', function () {
+    $this->comment('Processing');
+    $controller = new App\Http\Controllers\Telegram\TelegramApi();
+    if ($controller->setCommand()) {
+        $this->comment('Command was set');
+    } else {
+        $this->comment('Error set command');
+    }
+});
 
 Artisan::command('bot:register', function () {
     $this->comment('Processing');

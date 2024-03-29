@@ -9,8 +9,11 @@ use App\Traits\TelegramBotButtonTrait;
 use App\Traits\TelegramBotTrait;
 use Illuminate\Http\Request;
 use TelegramBot\Api\Exception;
+use TelegramBot\Api\Types\CallbackQuery;
 use TelegramBot\Api\Types\Inline\InlineKeyboardMarkup;
 use TelegramBot\Api\Types\Message;
+use TelegramBot\Api\Types\ReplyKeyboardMarkup;
+use TelegramBot\Api\Types\ReplyKeyboardRemove;
 
 class CommandController extends Controller
 {
@@ -21,7 +24,6 @@ class CommandController extends Controller
     public function controller()
     {
         try {
-            //Handle /start command
             $this->client->command('start', function (Message $message) {
                 $cid = $message->getChat()->getId();
                 $last_name = $message->getChat()->getLastName();
@@ -44,12 +46,96 @@ class CommandController extends Controller
                 $keyboard = new InlineKeyboardMarkup(
                     [
                         [
-                            $this->howItWorkButton(),
                             $this->registerButton(),
+
+                        ],
+                        [
+                            $this->howItWorkButton(),
                         ]
                     ]
                 );
-                return $this->bot->sendMessage(chatId: $cid, text: $message, parseMode: "HTML",replyMarkup: $keyboard);
+                return $this->bot->sendMessage(chatId: $cid, text: $message, parseMode: "HTML", replyMarkup: $keyboard);
+            });
+
+            $this->client->command('support', function (Message $message) {
+                $cid = $message->getChat()->getId();
+
+                $message = view("TelegramBot.__commandSupport")->render();
+                $keyboard = new InlineKeyboardMarkup(
+                    [
+                        [
+                            $this->supportButton(),
+                        ]
+                    ]
+                );
+                return $this->bot->sendMessage(chatId: $cid, text: $message, parseMode: "HTML", replyMarkup: $keyboard);
+            });
+
+            $this->client->command('register', function (Message $message) {
+                $cid = $message->getChat()->getId();
+                $user = TelegramUser::where("cid", $cid)->firstOrFail();
+
+                $callbackController = new CallbackController();
+                if ($callbackController->_checkUserExists(user: $user) == true) {
+                    $keyboard = new InlineKeyboardMarkup([
+                        [
+                            $this->sendRecoveryButton()
+                        ]
+                    ]);
+                    $message = view("TelegramBot._userAlreadyExistsInDB");
+                    return $this->bot->sendMessage(chatId: $cid, text: $message, parseMode: "HTML", replyMarkup: $keyboard);
+
+                } else {
+                    $user->update([
+                        "cookie" => "requestPhone",
+                    ]);
+                    $message = view("TelegramBot.register")->render();
+                    $keyboard = new ReplyKeyboardMarkup(
+                        [
+                            [
+                                $this->sendPhone(),
+                            ]
+                        ],
+                        true, true,
+                    );
+                    return $this->bot->sendMessage(chatId: $cid, text: $message, parseMode: "HTML", replyMarkup: $keyboard);
+                }
+
+            });
+
+            $this->client->command('restore_access', function (Message $message) {
+
+                $cid = $message->getChat()->getId();
+
+                $user = TelegramUser::where("cid", $cid)->firstOrFail();
+                $user->update([
+                    "cookie" => "restore_access"
+                ]);
+
+                if (empty($user->phone)) {
+                    $message = view("TelegramBot.__commandRestoreAccessErrorPhoneEmptyOrNotFound");
+                    return $this->bot->sendMessage(chatId: $cid, text: "$message", parseMode: "HTML", replyMarkup: new ReplyKeyboardRemove());
+                } else {
+                    $callbackController = new CallbackController();
+                    if ($callbackController->_checkUserExists(user: $user) == true) {
+                        $message = view("TelegramBot.__commandRestoreAccessSendRestoreButton");
+                        $keyboard = new InlineKeyboardMarkup([
+                            [
+                                $this->sendRecoveryButton()
+                            ]
+                        ]);
+                        return $this->bot->sendMessage(chatId: $cid, text: $message, parseMode: "HTML", replyMarkup: $keyboard);
+                    } else {
+                        $keyboard = new InlineKeyboardMarkup([
+                            [
+                                $this->registerButton(),
+                            ]
+                        ]);
+                        $message = view("TelegramBot.__commandRestoreAccessErrorPhoneEmptyOrNotFound");
+                        return $this->bot->sendMessage(chatId: $cid, text: "$message", parseMode: "HTML", replyMarkup: $keyboard);
+                    }
+                }
+
             });
 
             return $this->client->run();
