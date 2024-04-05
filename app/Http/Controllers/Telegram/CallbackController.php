@@ -199,9 +199,10 @@ class CallbackController extends Controller
         ]);
 
         $message = view("TelegramBot._sendLoginData", compact("data"))->render();
+        $token = $data['token'] ?? null;
         $keyboard = new InlineKeyboardMarkup([
             [
-                $this->goToWebsite("Войти в личный кабинет", "https://codemp.ru/login")
+                $this->goToWebsite("Войти в личный кабинет", "https://codemp.ru/login?token=$token")
             ]
         ]);
         $this->bot->editMessageText(chatId: $cid,
