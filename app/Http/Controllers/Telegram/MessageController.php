@@ -9,9 +9,11 @@ use App\Traits\CodempTratit;
 use App\Traits\TelegramBotButtonTrait;
 use App\Traits\TelegramBotTrait;
 
+use Log;
 use TelegramBot\Api\Types\Inline\InlineKeyboardMarkup;
 use TelegramBot\Api\Types\Message;
 use TelegramBot\Api\Types\ReplyKeyboardRemove;
+use Throwable;
 
 
 class MessageController extends Controller
@@ -68,16 +70,21 @@ class MessageController extends Controller
 
             // Обновляю адрес эл. почты
             $user->update(["email" => $email]);
-
+            try {
             $message = view("TelegramBot._requestEmailConfirmAddress", compact("email"))->render();
             $keyboard = new InlineKeyboardMarkup(
                 [
                     [
-                        $this->confirmEmail(email: $email),
+                        $this->confirmEmail(),
                     ]
                 ]
             );
-            return $this->bot->sendMessage(chatId: $cid, text: $message, parseMode: "HTML", replyMarkup: $keyboard);
+
+                return $this->bot->sendMessage(chatId: $cid, text: $message, parseMode: "HTML", replyMarkup: $keyboard);
+            } catch (Throwable $exception) {
+                print_r($exception->getMessage());
+                Log::error($exception->getMessage());
+            }
         }
 
         if (
